@@ -2,7 +2,18 @@
   <div class="container">
     <div class="auth">
       <h1 class="title">{{signIn ? 'Sign in to your account' : 'Create a VueTrello Account'}}</h1>
-      <b-form @submit.prevent="onSubmit" class="auth-form" :novalidate="true" :validated="error">
+      <div>
+        <b-alert
+            :show="dismissCountDown"
+            dismissible
+            variant="warning"
+            @dismissed="dismissCountDown=0"
+            @dismiss-count-down="countDownChanged"
+        >
+          {{ submissionErrorMsg }}
+        </b-alert>
+      </div>
+      <b-form @submit.prevent="onSubmit" class="auth-form" :novalidate="true" :validated="!signIn && error">
         <b-form-group
             id="input-group-1"
             label="Name *"
@@ -29,7 +40,7 @@
           <b-form-input
               id="input-2"
               v-model="form.email"
-              type="text"
+              type="email"
               required
               :pattern="emailPattern"
               placeholder="e.g., micheal@popking.com"
@@ -55,18 +66,18 @@
             Password must be 8 character long with at least one letter, one number and one special character:.
           </b-form-invalid-feedback>
         </b-form-group>
-        <b-button type="submit" variant="success">Log In</b-button>
-        <b-button class="google-signIn-btn" variant="outline-primary">
+        <b-button type="submit" variant="success">{{signIn ? 'LogIn' : 'SignUp'}}</b-button>
+        <b-button class="google-signIn-btn" variant="outline-primary" @click="googleOAuth">
           <font-awesome-icon :icon="google" size="lg"/>
           {{signIn ? 'Log in' : 'Sign up'}} with Google
         </b-button>
       </b-form>
       <div class="change-auth-type">
         <div v-if="signIn">
-          Create an Account? <strong @click="signIn = false">SignUp</strong>
+          Create an Account? <strong @click.prevent="changeAuthType(false)">SignUp</strong>
         </div>
         <div v-else>
-          Already have an Account? <strong @click="signIn = true">LogIn</strong>
+          Already have an Account? <strong @click.prevent="changeAuthType(true)">LogIn</strong>
         </div>
       </div>
     </div>
@@ -74,18 +85,21 @@
 </template>
 
 <script>
-  import {BForm, BFormGroup, BFormInput, BButton, BFormInvalidFeedback} from 'bootstrap-vue'
+  import {BForm, BFormGroup, BFormInput, BButton, BFormInvalidFeedback, BAlert} from 'bootstrap-vue'
   import {faGoogle} from '@fortawesome/free-brands-svg-icons'
 
   export default {
     name: "Auth",
     components: {
-      BForm, BButton, BFormInput, BFormGroup, BFormInvalidFeedback
+      BForm, BButton, BFormInput, BFormGroup, BFormInvalidFeedback, BAlert
     },
     data() {
       return {
         signIn: false,
         error: false,
+        dismissSecs: 5,
+        dismissCountDown: 0,
+        submissionErrorMsg: '',
         emailPattern: '[a-z0-9!#$%&\'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&\'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?',
         namePattern: '[A-Za-z ]{3,}',
         passwordPattern: '^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,}$',
@@ -104,20 +118,51 @@
     methods: {
       onSubmit() {
         this.error = true
+        let name = this.form.name
+        let email = this.form.email
+        let password = this.form.password
         let emailRegx = new RegExp(this.emailPattern);
         let nameRegx = new RegExp(this.namePattern)
         let passwordRegx = new RegExp(this.passwordPattern)
-        if (nameRegx.test(this.form.name)
-          && emailRegx.test(this.form.email)
-          && passwordRegx.test(this.form.password)) {
+        if (nameRegx.test(name)
+          && emailRegx.test(email)
+          && passwordRegx.test(password)) {
+          if(!this.signIn) {
+            this.$store.dispatch('emailSignUp', {name, email, password})
+              .then(() => this.$router.push('/'))
+              .catch(err => {
+                this.dismissCountDown = this.dismissSecs;
+                this.submissionErrorMsg = err;
+              })
+          }
+        }else{
           if(this.signIn){
-            console.log(this.form);
-          }else{
-            console.log(this.form);
+            this.$store.dispatch('emailSignIn', {email, password})
+              .then(() => this.$router.push('/'))
+              .catch(err => {
+                this.dismissCountDown = this.dismissSecs;
+                this.submissionErrorMsg = err;
+              })
           }
         }
+      },
+      countDownChanged(dismissCountDown) {
+        this.dismissCountDown = dismissCountDown
+      },
+      changeAuthType(isSignIn) {
+        Object.assign(this.$data, this.$options.data());
+
+        this.signIn = isSignIn;
+      },
+      googleOAuth() {
+        this.$store.dispatch('googleOAuth')
+          .then(() => this.$router.push('/'))
+          .catch(err => {
+            this.dismissCountDown = this.dismissSecs;
+            this.submissionErrorMsg = err;
+          })
       }
-    },
+    }
   }
 </script>
 
