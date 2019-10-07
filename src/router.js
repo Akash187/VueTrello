@@ -4,7 +4,7 @@ import Auth from './views/Auth.vue'
 
 Vue.use(Router)
 
-export default new Router({
+const router = new Router({
   mode: 'history',
   base: process.env.BASE_URL,
   routes: [
@@ -12,20 +12,43 @@ export default new Router({
       path: '/auth',
       name: 'authenticate',
       component: Auth
-    }
-    ,
+    },
     {
       path: '/',
       name: 'home',
-      component: () => import('./views/Board.vue')
+      component: () => import('./views/Home.vue'),
+      meta: {
+        requiresAuth: true
+      }
     },
     {
       path: '/board/:id',
       name: 'board',
-      // route level code-splitting
-      // this generates a separate chunk (about.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('./views/Board.vue')
+      component: () => import('./views/Board.vue'),
+      meta: {
+        requiresAuth: true
+      }
     }
   ]
 })
+
+router.beforeEach((to, from, next) => {
+  let isAuthenticated = null
+  if(JSON.parse(localStorage.getItem('authUser'))){
+    isAuthenticated = true
+  }
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+  if (requiresAuth && !isAuthenticated) {
+    next('/auth');
+  } else if (requiresAuth && isAuthenticated) {
+    next()
+  } else {
+    if(isAuthenticated && to.path === '/auth'){
+      next(from.path)
+    }else{
+      next()
+    }
+  }
+});
+
+export default router

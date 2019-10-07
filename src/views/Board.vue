@@ -1,5 +1,5 @@
 <template>
-  <div>test</div>
+  <router-link to="/auth">test</router-link>
 </template>
 
 <script>

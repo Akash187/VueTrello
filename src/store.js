@@ -4,12 +4,22 @@ import { auth, firestore, googleProvider } from './config/firebaseConfig'
 
 Vue.use(Vuex)
 
-export default new Vuex.Store({
+const store = new Vuex.Store({
   state: {
-    'userId': ''
+    'uid': null,
+    'initials': ''
   },
   mutations: {
-
+    setUid(state, uid){
+      state.uid = uid;
+    },
+    setInitials(state, initials){
+      state.initials = initials;
+    },
+    reset(state){
+      state.uid = null
+      state.initials = ''
+    }
   },
   actions: {
     emailSignUp(context, {name, email, password}){
@@ -67,9 +77,37 @@ export default new Vuex.Store({
           reject(error)
         });
       })
+    },
+    checkIsAuthenticated({commit, dispatch}) {
+      return new Promise((resolve, reject) => {
+        auth.onAuthStateChanged(function(user) {
+          if (user) {
+            let uid = user.uid;
+            commit('setUid', uid);
+            dispatch('fetchUserInfo', uid);
+            localStorage.setItem('authUser', JSON.stringify({authenticated : true}));
+            resolve()
+          } else {
+            commit('reset');
+            localStorage.removeItem('authUser');
+            reject()
+          }
+        });
+      })
+    },
+    async fetchUserInfo({ commit }, uid) {
+      try{
+        let user = await firestore.collection('users').doc(uid).get();
+        let data = user.data();
+        commit('setInitials', data.initials);
+      }catch(err){
+        console.log(err)
+      }
     }
   },
   getters: {
 
   }
 })
+
+export default store;
