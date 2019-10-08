@@ -7,7 +7,8 @@ Vue.use(Vuex)
 const store = new Vuex.Store({
   state: {
     'uid': null,
-    'initials': ''
+    'initials': '',
+    'submitting': false
   },
   mutations: {
     setUid(state, uid){
@@ -16,13 +17,17 @@ const store = new Vuex.Store({
     setInitials(state, initials){
       state.initials = initials;
     },
+    setSubmitting(state, value){
+      state.submitting = value
+    },
     reset(state){
       state.uid = null
       state.initials = ''
     }
   },
   actions: {
-    emailSignUp(context, {name, email, password}){
+    emailSignUp({commit}, {name, email, password}){
+      commit('setSubmitting', true);
       return new Promise((resolve, reject) => {
         auth.createUserWithEmailAndPassword(email, password)
           .then(res => res.user.uid)
@@ -33,17 +38,26 @@ const store = new Vuex.Store({
               initials
             })
         })
-          .then((res) => resolve(res))
+          .then((res) => {
+            commit('setSubmitting', false);
+            resolve(res)
+          })
           .catch(function(error) {
+            commit('setSubmitting', false);
             reject(error.message);
           });
       });
     },
-    emailSignIn(context, {email, password}){
+    emailSignIn({commit}, {email, password}){
+      commit('setSubmitting', true);
       return new Promise((resolve, reject) => {
         auth.signInWithEmailAndPassword(email, password)
-          .then((res) => resolve(res))
+          .then((res) => {
+            commit('setSubmitting', false);
+            resolve(res)
+          })
           .catch(function(error) {
+            commit('setSubmitting', false);
             reject(error.message)
         });
       })

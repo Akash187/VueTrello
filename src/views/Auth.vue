@@ -63,10 +63,16 @@
               :pattern="passwordPattern"
           ></b-form-input>
           <b-form-invalid-feedback>
-            Password must be 8 character long with at least one letter, one number and one special character:.
+            Password must be 8 character long with at least one letter, one number and one special
+            character:.
           </b-form-invalid-feedback>
         </b-form-group>
-        <b-button type="submit" variant="success">{{signIn ? 'LogIn' : 'SignUp'}}</b-button>
+        <b-button type="submit" class="submit-btn" variant="success"
+                  :disabled="this.$store.state.submitting">
+          <div v-if="!this.$store.state.submitting">
+            {{signIn ? 'LogIn' : 'SignUp'}}
+          </div>
+          <circle2 v-else class="form-loader"/></b-button>
         <b-button class="google-signIn-btn" variant="outline-primary" @click="googleOAuth">
           <font-awesome-icon :icon="google" size="lg"/>
           {{signIn ? 'Log in' : 'Sign up'}} with Google
@@ -79,6 +85,8 @@
         <div v-else>
           Already have an Account? <strong @click.prevent="changeAuthType(true)">LogIn</strong>
         </div>
+        <div style="max-height: 10px">
+        </div>
       </div>
     </div>
   </div>
@@ -87,11 +95,12 @@
 <script>
   import {BForm, BFormGroup, BFormInput, BButton, BFormInvalidFeedback, BAlert} from 'bootstrap-vue'
   import {faGoogle} from '@fortawesome/free-brands-svg-icons'
+  import { Circle2 } from 'vue-loading-spinner'
 
   export default {
     name: "Auth",
     components: {
-      BForm, BButton, BFormInput, BFormGroup, BFormInvalidFeedback, BAlert
+      BForm, BButton, BFormInput, BFormGroup, BFormInvalidFeedback, BAlert, Circle2
     },
     data() {
       return {
@@ -117,32 +126,34 @@
     },
     methods: {
       onSubmit() {
-        this.error = true
-        let name = this.form.name
-        let email = this.form.email
-        let password = this.form.password
-        let emailRegx = new RegExp(this.emailPattern);
-        let nameRegx = new RegExp(this.namePattern)
-        let passwordRegx = new RegExp(this.passwordPattern)
-        if (nameRegx.test(name)
-          && emailRegx.test(email)
-          && passwordRegx.test(password)) {
-          if(!this.signIn) {
-            this.$store.dispatch('emailSignUp', {name, email, password})
-              .then(() => this.$router.push('/'))
-              .catch(err => {
-                this.dismissCountDown = this.dismissSecs;
-                this.submissionErrorMsg = err;
-              })
-          }
-        }else{
-          if(this.signIn){
-            this.$store.dispatch('emailSignIn', {email, password})
-              .then(() => this.$router.push('/'))
-              .catch(err => {
-                this.dismissCountDown = this.dismissSecs;
-                this.submissionErrorMsg = err;
-              })
+        if(!this.$store.state.submitting){
+          this.error = true
+          let name = this.form.name
+          let email = this.form.email
+          let password = this.form.password
+          let emailRegx = new RegExp(this.emailPattern);
+          let nameRegx = new RegExp(this.namePattern)
+          let passwordRegx = new RegExp(this.passwordPattern)
+          if (nameRegx.test(name)
+            && emailRegx.test(email)
+            && passwordRegx.test(password)) {
+            if(!this.signIn) {
+              this.$store.dispatch('emailSignUp', {name, email, password})
+                .then(() => this.$router.push('/'))
+                .catch(err => {
+                  this.dismissCountDown = this.dismissSecs;
+                  this.submissionErrorMsg = err;
+                })
+            }
+          }else{
+            if(this.signIn){
+              this.$store.dispatch('emailSignIn', {email, password})
+                .then(() => this.$router.push('/'))
+                .catch(err => {
+                  this.dismissCountDown = this.dismissSecs;
+                  this.submissionErrorMsg = err;
+                })
+            }
           }
         }
       },
@@ -211,6 +222,16 @@
     .auth {
       padding: 2rem 0;
     }
+  }
+
+  .submit-btn{
+    display: flex;
+    justify-content: center;
+  }
+
+  .form-loader{
+    height: 24px !important;
+    width: 24px !important;
   }
 
 </style>
