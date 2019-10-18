@@ -126,34 +126,32 @@
     },
     methods: {
       onSubmit() {
-        if(!this.$store.state.submitting){
-          this.error = true
-          let name = this.form.name
-          let email = this.form.email
-          let password = this.form.password
-          let emailRegx = new RegExp(this.emailPattern);
-          let nameRegx = new RegExp(this.namePattern)
-          let passwordRegx = new RegExp(this.passwordPattern)
-          if (nameRegx.test(name)
-            && emailRegx.test(email)
-            && passwordRegx.test(password)) {
-            if(!this.signIn) {
-              this.$store.dispatch('emailSignUp', {name, email, password})
-                .then(() => this.$router.push('/'))
-                .catch(err => {
-                  this.dismissCountDown = this.dismissSecs;
-                  this.submissionErrorMsg = err;
-                })
-            }
-          }else{
-            if(this.signIn){
-              this.$store.dispatch('emailSignIn', {email, password})
-                .then(() => this.$router.push('/'))
-                .catch(err => {
-                  this.dismissCountDown = this.dismissSecs;
-                  this.submissionErrorMsg = err;
-                })
-            }
+        this.error = true
+        let name = this.form.name
+        let email = this.form.email
+        let password = this.form.password
+        let emailRegx = new RegExp(this.emailPattern);
+        let nameRegx = new RegExp(this.namePattern)
+        let passwordRegx = new RegExp(this.passwordPattern)
+        if (nameRegx.test(name)
+          && emailRegx.test(email)
+          && passwordRegx.test(password)) {
+          if(!this.signIn) {
+            this.$store.dispatch('emailSignUp', {name, email, password})
+              .then(() => this.$router.push('/'))
+              .catch(err => {
+                this.dismissCountDown = this.dismissSecs;
+                this.submissionErrorMsg = err;
+              })
+          }
+        }else{
+          if(this.signIn){
+            this.$store.dispatch('emailSignIn', {email, password})
+              .then(() => this.$router.push('/'))
+              .catch(err => {
+                this.dismissCountDown = this.dismissSecs;
+                this.submissionErrorMsg = err;
+              })
           }
         }
       },

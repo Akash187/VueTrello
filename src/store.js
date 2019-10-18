@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { auth, firestore, googleProvider } from './config/firebaseConfig'
+import { auth, firestore, googleProvider, firebase } from './config/firebaseConfig'
 
 Vue.use(Vuex)
 
@@ -8,7 +8,9 @@ const store = new Vuex.Store({
   state: {
     'uid': null,
     'initials': '',
-    'submitting': false
+    'submitting': false,
+    'boards': [],
+    boardListener: undefined
   },
   mutations: {
     setUid(state, uid){
@@ -23,6 +25,15 @@ const store = new Vuex.Store({
     reset(state){
       state.uid = null
       state.initials = ''
+      state.submitting = false
+      state.boards = []
+      state.boardListener = undefined
+    },
+    addBoards(state, boards){
+      state.boards = boards
+    },
+    setBoardListener(state, listener){
+      state.boardListener = listener
     }
   },
   actions: {
@@ -32,7 +43,8 @@ const store = new Vuex.Store({
         auth.createUserWithEmailAndPassword(email, password)
           .then(res => res.user.uid)
           .then((uid) => {
-            let initials = ['', ...name.split(' ')].reduce((accumulator, currentValue) => accumulator + currentValue[0])
+            let initials = ['', ...name.split(' ')]
+              .reduce((accumulator, currentValue) => accumulator + currentValue[0])
             firestore.collection('users').doc(uid).set({
               name,
               initials
@@ -104,10 +116,28 @@ const store = new Vuex.Store({
           } else {
             commit('reset');
             localStorage.removeItem('authUser');
-            reject()
+            reject('User Not authenticated')
           }
         });
       })
+    },
+    getBoards({ dispatch }) {
+      dispatch('fetchBoards')
+    },
+    createBoard({ state }, name) {
+      return new Promise((resolve, reject) => {
+        firestore.collection('boards').add({
+          name,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          lists: [],
+          createdBy: state.uid
+        }).then(() => {
+          resolve('added')
+        }).catch(err => {
+          reject(err)
+        })
+      });
     },
     async fetchUserInfo({ commit }, uid) {
       try{
@@ -117,7 +147,23 @@ const store = new Vuex.Store({
       }catch(err){
         console.log(err)
       }
-    }
+    },
+    fetchBoards({ state, commit }) {
+      let boardListener = firestore.collection('boards')
+        .where("createdBy", "==", state.uid)
+        .orderBy("updatedAt", "desc")
+        .onSnapshot(function(querySnapshot) {
+          let boards = [];
+          querySnapshot.forEach(function(doc) {
+            boards.push({
+              id: doc.id,
+              name: doc.data().name
+            });
+          });
+          commit('addBoards', boards)
+        });
+      commit('setBoardListener', boardListener)
+    },
   },
   getters: {
 

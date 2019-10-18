@@ -1,5 +1,7 @@
 <template>
-  <router-link to="/auth">test</router-link>
+  <div class="board">
+    <router-link to="/auth">test</router-link>
+  </div>
 </template>
 
 <script>

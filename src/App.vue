@@ -21,9 +21,7 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-size: 1.25rem;
-  }
-
-  a.router-link-exact-active {
-    color: #42b983;
+    background: #b3d8fb;
+    min-height: 100vh;
   }
 </style>
