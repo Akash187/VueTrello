@@ -28,7 +28,6 @@ const store = new Vuex.Store({
       state.initials = ''
       state.submitting = false
       state.boards = []
-      state.boardListener = undefined
     },
     addBoards(state, boards){
       state.boards = boards
@@ -38,6 +37,9 @@ const store = new Vuex.Store({
     },
     setActiveId(state, id){
       state.activeId = id
+    },
+    closeListeners(state){
+      state.boardListener();
     }
   },
   actions: {
@@ -99,10 +101,11 @@ const store = new Vuex.Store({
         });
       })
     },
-    signOut() {
+    signOut({ commit }) {
       return new Promise((resolve, reject) => {
         auth.signOut().then(function() {
           resolve('success')
+          commit('closeListeners')
         }).catch(function(error) {
           reject(error)
         });

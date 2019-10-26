@@ -1,5 +1,5 @@
 <template>
-  <div class="board-container">
+  <div class="container mb-3">
     <div class="board-header">
       <font-awesome-icon :icon="user" size="lg"/>
       <div class="board-title">Personal Boards</div>
@@ -56,6 +56,7 @@
         .catch(err => console.log(err))
     },
     beforeDestroy() {
+      console.log('destroying');
       this.$store.state.boardListener()
     },
     computed: {
@@ -87,9 +88,6 @@
 </script>
 
 <style scoped>
-  .board-container {
-    padding: 0 1rem 2rem 1rem;
-  }
 
   .board-header{
     margin-top: 40px;

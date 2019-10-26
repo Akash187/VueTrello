@@ -39,7 +39,9 @@
     },
     methods: {
       signOut() {
-        this.$store.dispatch('signOut').then(() => this.$router.push('/auth'));
+        this.$store.dispatch('signOut').then(() => {
+          this.$router.push('/auth')
+        });
       }
     }
   }
