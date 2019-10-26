@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="auth-container">
     <div class="auth">
       <h1 class="title">{{signIn ? 'Sign in to your account' : 'Create a VueTrello Account'}}</h1>
       <div>
@@ -85,8 +85,6 @@
         <div v-else>
           Already have an Account? <strong @click.prevent="changeAuthType(true)">LogIn</strong>
         </div>
-        <div style="max-height: 10px">
-        </div>
       </div>
     </div>
   </div>
@@ -126,34 +124,32 @@
     },
     methods: {
       onSubmit() {
-        if(!this.$store.state.submitting){
-          this.error = true
-          let name = this.form.name
-          let email = this.form.email
-          let password = this.form.password
-          let emailRegx = new RegExp(this.emailPattern);
-          let nameRegx = new RegExp(this.namePattern)
-          let passwordRegx = new RegExp(this.passwordPattern)
-          if (nameRegx.test(name)
-            && emailRegx.test(email)
-            && passwordRegx.test(password)) {
-            if(!this.signIn) {
-              this.$store.dispatch('emailSignUp', {name, email, password})
-                .then(() => this.$router.push('/'))
-                .catch(err => {
-                  this.dismissCountDown = this.dismissSecs;
-                  this.submissionErrorMsg = err;
-                })
-            }
-          }else{
-            if(this.signIn){
-              this.$store.dispatch('emailSignIn', {email, password})
-                .then(() => this.$router.push('/'))
-                .catch(err => {
-                  this.dismissCountDown = this.dismissSecs;
-                  this.submissionErrorMsg = err;
-                })
-            }
+        this.error = true
+        let name = this.form.name
+        let email = this.form.email
+        let password = this.form.password
+        let emailRegx = new RegExp(this.emailPattern);
+        let nameRegx = new RegExp(this.namePattern)
+        let passwordRegx = new RegExp(this.passwordPattern)
+        if (nameRegx.test(name)
+          && emailRegx.test(email)
+          && passwordRegx.test(password)) {
+          if(!this.signIn) {
+            this.$store.dispatch('emailSignUp', {name, email, password})
+              .then(() => this.$router.push('/'))
+              .catch(err => {
+                this.dismissCountDown = this.dismissSecs;
+                this.submissionErrorMsg = err;
+              })
+          }
+        }else{
+          if(this.signIn){
+            this.$store.dispatch('emailSignIn', {email, password})
+              .then(() => this.$router.push('/'))
+              .catch(err => {
+                this.dismissCountDown = this.dismissSecs;
+                this.submissionErrorMsg = err;
+              })
           }
         }
       },
@@ -188,13 +184,13 @@
   }
 
   .title{
-    font-size: 38px;
+    font-size: 32px;
   }
 
   .auth-form{
     display: flex;
     flex-direction: column;
-    width: 480px;
+    width: 400px;
     max-width: 100%;
   }
 
@@ -205,6 +201,7 @@
   .change-auth-type{
     padding-top: 2rem;
     color: gray;
+    display: flex;
   }
 
   .change-auth-type div strong{

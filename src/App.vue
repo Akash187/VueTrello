@@ -1,7 +1,9 @@
 <template>
   <div id="app">
     <Navbar/>
-    <router-view/>
+    <div class="content">
+      <router-view/>
+    </div>
   </div>
 </template>
 
@@ -16,14 +18,24 @@
 </script>
 
 <style>
+  @import './assets/styles/variables.css';
+
+  html, body {
+    height:100%;
+  }
+
   #app {
     font-family: 'Avenir', Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-size: 1.25rem;
+    background: #00aecc;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
   }
 
-  a.router-link-exact-active {
-    color: #42b983;
+  .content {
+    padding-top: 4rem;
   }
 </style>

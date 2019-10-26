@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-navbar toggleable="lg" type="dark" variant="info" :sticky="true">
+    <b-navbar toggleable="lg" type="dark" variant="info" fixed="top">
       <b-navbar-brand to="/">
         <div class="brand-title">
           <font-awesome-icon :icon="trello" size="lg"/>
