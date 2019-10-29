@@ -8,7 +8,7 @@
           placeholder="Enter card detail..."
           :autofocus="true"
       />
-      <BoardFormBtn text="Add Card" @closeform="$emit('closeAddCard')"/>
+      <BoardFormBtn text="Add Card" @add="addCard" @closeform="$emit('closeAddCard')"/>
     </div>
   </div>
 </template>
@@ -40,6 +40,11 @@
         info: this.value || ''
       }
     },
+    methods: {
+      addList() {
+        this.$store.dispatch('addList', {})
+      }
+    }
   }
 </script>
 

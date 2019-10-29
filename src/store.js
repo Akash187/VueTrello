@@ -10,8 +10,12 @@ const store = new Vuex.Store({
     'initials': '',
     'submitting': false,
     'boards': [],
+    'board': {},
     'activeId': '',
-    boardListener: undefined
+    'lists': [],
+    boardsListener: undefined,
+    boardListener: undefined,
+    listListener: undefined
   },
   mutations: {
     setUid(state, uid){
@@ -28,6 +32,9 @@ const store = new Vuex.Store({
       state.initials = ''
       state.submitting = false
       state.boards = []
+      state.board = {}
+      state.activeId = ''
+      state.boardListener()
     },
     addBoards(state, boards){
       state.boards = boards
@@ -35,11 +42,20 @@ const store = new Vuex.Store({
     setBoardListener(state, listener){
       state.boardListener = listener
     },
+    setBoardsListener(state, listener){
+      state.boardsListener = listener
+    },
     setActiveId(state, id){
       state.activeId = id
     },
-    closeListeners(state){
-      state.boardListener();
+    addLists(state, lists){
+      state.lists = lists;
+    },
+    setListListener(state, listener){
+      state.listListener = listener
+    },
+    activeBoard(state, board) {
+      state.board = board
     }
   },
   actions: {
@@ -83,7 +99,6 @@ const store = new Vuex.Store({
     googleOAuth(){
       return new Promise((resolve, reject) => {
         auth.signInWithPopup(googleProvider)
-          .then((result) => result)
           .then((result) => {
             let name = result.additionalUserInfo.profile.name;
             //extracting max two word initials from name
@@ -105,7 +120,7 @@ const store = new Vuex.Store({
       return new Promise((resolve, reject) => {
         auth.signOut().then(function() {
           resolve('success')
-          commit('closeListeners')
+          commit('reset');
         }).catch(function(error) {
           reject(error)
         });
@@ -121,7 +136,6 @@ const store = new Vuex.Store({
             localStorage.setItem('authUser', JSON.stringify({authenticated : true}));
             resolve()
           } else {
-            commit('reset');
             localStorage.removeItem('authUser');
             reject('User Not authenticated')
           }
@@ -156,7 +170,7 @@ const store = new Vuex.Store({
       }
     },
     fetchBoards({ state, commit }) {
-      let boardListener = firestore.collection('boards')
+      let boardsListener = firestore.collection('boards')
         .where("createdBy", "==", state.uid)
         .orderBy("updatedAt", "desc")
         .onSnapshot(function(querySnapshot) {
@@ -169,11 +183,77 @@ const store = new Vuex.Store({
           });
           commit('addBoards', boards)
         });
-      commit('setBoardListener', boardListener)
+      commit('setBoardsListener', boardsListener)
     },
+    async currentBoard({commit}, boardId){
+      try{
+        let boardListener = await firestore.collection('boards').doc(boardId)
+          .onSnapshot(function(doc) {
+          commit('activeBoard', doc.data())
+        });
+        commit('setBoardListener', boardListener)
+      }catch (e) {
+        console.log(e)
+      }
+    },
+    async updateBoard(context, {boardId, newLists}){
+      try{
+        await firestore.collection('boards').doc(boardId).update({
+          lists: newLists
+        })
+      }catch(e){
+        console.log(e)
+      }
+    },
+    addList(context, {title, boardId}){
+      console.log(title, boardId);
+      return new Promise((resolve, reject) => {
+        firestore.collection('lists').add({
+          title,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          cards: [],
+          boardId
+        }).then((res) => {
+          return firestore.collection('boards').doc(boardId).update({
+            lists: firebase.firestore.FieldValue.arrayUnion(res.id)
+          })
+        }).then((res) => {
+          console.log("update", res);
+          resolve('added')
+        }).catch(err => {
+          reject(err)
+        })
+      });
+    },
+    fetchLists({ commit }, boardId) {
+      let listListener = firestore.collection('lists')
+        .where("boardId", "==", boardId)
+        .onSnapshot(function(querySnapshot) {
+          let lists = [];
+          querySnapshot.forEach(function(doc) {
+            lists.push({
+              id: doc.id,
+              ...doc.data()
+            });
+          });
+          commit('addLists', lists)
+        });
+      commit('setListListener', listListener)
+    }
   },
   getters: {
-
+    orderedList: state => {
+      if(state.board.lists){
+        return state.board.lists.map(id => {
+          for(let list of state.lists){
+            if(list.id === id){
+              return list
+            }
+          }
+        })
+      }
+    }
   }
 })
 

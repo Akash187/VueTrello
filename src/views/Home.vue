@@ -56,7 +56,6 @@
         .catch(err => console.log(err))
     },
     beforeDestroy() {
-      console.log('destroying');
       this.$store.state.boardListener()
     },
     computed: {

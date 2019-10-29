@@ -7,7 +7,7 @@
     </div>
     <div v-else class="form">
       <b-form-input v-model="title" placeholder="Enter a list title..."/>
-      <BoardFormBtn text="Add List" @closeform="showForm = !showForm"/>
+      <BoardFormBtn text="Add List" @submit="addList" @closeform="showForm = !showForm"/>
     </div>
   </div>
 </template>
@@ -32,6 +32,15 @@
       return {
         showForm: false,
         title: ''
+      }
+    },
+    methods: {
+      addList() {
+        if(this.title.length > 0){
+          this.$store.dispatch('addList', { title : this.title, boardId: this.$route.params.id });
+          this.title = '';
+          this.showForm = false;
+        }
       }
     },
   }

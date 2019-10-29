@@ -1,6 +1,6 @@
 <template>
   <div class="mt-1">
-    <b-button variant="success" size="sm">{{ text }}</b-button>
+    <b-button variant="success" @click="$emit('submit')" size="sm">{{ text }}</b-button>
     <font-awesome-icon class="ml-2 pt-1 cancel-btn" :icon="cancel" size="lg"
                        @click="$emit('closeform')"/>
   </div>

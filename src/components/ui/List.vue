@@ -1,7 +1,7 @@
 <template>
   <div class="list">
     <div class="title">
-      <span>Testing</span>
+      <span>{{title}}</span>
       <font-awesome-icon class="ml-2 pt-1 cancel-icon" :icon="cancel" size="lg"/>
     </div>
     <div class="cards">
@@ -30,6 +30,16 @@
   export default {
     name: "List",
     components: {SingleCard, AddListCard },
+    props: {
+      title: {
+        type: String,
+        required: true
+      },
+      id: {
+        type: String,
+        required: true
+      }
+    },
     computed: {
       cancel() {
         return faTimes
