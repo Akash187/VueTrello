@@ -134,21 +134,20 @@
 
             this.$store.dispatch('updateCard', {listId: this.id, cards: reorderedItems})
           }
-        }
-        if (removedIndex !== null) {
+        }else if (removedIndex !== null) {
           originalArray.splice(removedIndex, 1)
           this.$store.dispatch('updateCard', {
             listId: this.id,
             cards: originalArray
           })
-        }
-
-        if (addedIndex !== null) {
+        }else if (addedIndex !== null) {
           originalArray.splice(addedIndex, 0, payload)
           this.$store.dispatch('updateCard', {
             listId: this.id,
             cards: originalArray
           })
+        }else{
+          return ''
         }
       },
       getCardPayload () {
