@@ -2,7 +2,7 @@
   <div>
     <Container @drop="onDrop" orientation="horizontal" class="boards">
       <Draggable v-for="list in orderedList" :key="list.id">
-        <List :id="list.id" :title="list.title"/>
+        <List :id="list.id" :title="list.title" :cards="list.cards"/>
       </Draggable>
       <AddListButton/>
     </Container>
@@ -20,6 +20,10 @@
       this.$store.dispatch('fetchLists', this.$route.params.id)
       this.$store.dispatch('currentBoard', this.$route.params.id)
     },
+    beforeDestroy(){
+      this.$store.state.boardListener()
+      this.$store.state.listListener()
+    },
     components: {
       List,
       AddListButton,
@@ -30,9 +34,6 @@
       orderedList: {
         get() {
           return this.$store.getters.orderedList;
-        },
-        set(value) {
-          console.log(value);
         }
       }
     },

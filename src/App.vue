@@ -38,4 +38,9 @@
   .content {
     padding-top: 4rem;
   }
+
+  .smooth-dnd-container{
+    min-height: 10px !important;
+    min-width: 0 !important;
+  }
 </style>

@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import { auth, firestore, googleProvider, firebase } from './config/firebaseConfig'
+import uuidv4 from 'uuid'
 
 Vue.use(Vuex)
 
@@ -35,6 +36,8 @@ const store = new Vuex.Store({
       state.board = {}
       state.activeId = ''
       state.boardListener()
+      state.boardListener()
+      state.listListener()
     },
     addBoards(state, boards){
       state.boards = boards
@@ -199,14 +202,14 @@ const store = new Vuex.Store({
     async updateBoard(context, {boardId, newLists}){
       try{
         await firestore.collection('boards').doc(boardId).update({
-          lists: newLists
+          lists: newLists,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         })
       }catch(e){
         console.log(e)
       }
     },
     addList(context, {title, boardId}){
-      console.log(title, boardId);
       return new Promise((resolve, reject) => {
         firestore.collection('lists').add({
           title,
@@ -216,10 +219,10 @@ const store = new Vuex.Store({
           boardId
         }).then((res) => {
           return firestore.collection('boards').doc(boardId).update({
-            lists: firebase.firestore.FieldValue.arrayUnion(res.id)
+            lists: firebase.firestore.FieldValue.arrayUnion(res.id),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
           })
         }).then((res) => {
-          console.log("update", res);
           resolve('added')
         }).catch(err => {
           reject(err)
@@ -240,6 +243,36 @@ const store = new Vuex.Store({
           commit('addLists', lists)
         });
       commit('setListListener', listListener)
+    },
+    async deleteList(context, {listId, boardId}) {
+      try{
+        await firestore.collection('boards').doc(boardId).update({
+          lists: firebase.firestore.FieldValue.arrayRemove(listId),
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        })
+        await firestore.collection('lists').doc(listId).delete()
+      } catch (e) {
+        console.log(e)
+      }
+    },
+    addCard(context, {listId, data}){
+      firestore.collection('lists').doc(listId)
+        .update({
+          cards: firebase.firestore.FieldValue.arrayUnion({
+            id: uuidv4(),
+            info: data
+          }),
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(() => console.log('card added'))
+        .catch((err) => console.log(err))
+    },
+    updateCard(context, {listId, cards}){
+      firestore.collection('lists').doc(listId)
+        .update({
+          cards,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(() => console.log('card updated'))
+        .catch((err) => console.log(err))
     }
   },
   getters: {
@@ -247,7 +280,7 @@ const store = new Vuex.Store({
       if(state.board.lists){
         return state.board.lists.map(id => {
           for(let list of state.lists){
-            if(list.id === id){
+            if(list && list.id === id){
               return list
             }
           }

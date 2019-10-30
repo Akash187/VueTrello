@@ -2,37 +2,64 @@
   <div class="list">
     <div class="title">
       <span>{{title}}</span>
-      <font-awesome-icon class="ml-2 pt-1 cancel-icon" :icon="cancel" size="lg"/>
+      <font-awesome-icon
+          class="ml-2 pt-1 cancel-icon"
+          @click="showModal"
+          :icon="cancel"
+          size="lg"
+      />
     </div>
-    <div class="cards">
-      <div
+    <Container
+        group-name="col"
+        @drop="(e) => onCardDrop(id, e)"
+        class="cards"
+        :get-child-payload="getCardPayload()"
+    >
+      <Draggable
           v-for="card in cards"
-          :key="card.order"
+          :key="card.id"
       >
-        <SingleCard :id="card.order" :data="card.name"/>
-<!--        <AddListCard :value="card.name" @closeAddCard="editing = false"/>-->
-      </div>
-      <AddListCard v-if="showForm" @closeAddCard="showForm = !showForm"/>
-    </div>
-    <div v-if="!showForm" class="add-list">
-      <div @click="showForm = !showForm">
+        <SingleCard v-if="activeId !== card.id" @deleteCard="deleteCard(card.id)" :id="card.id"
+                    :data="card.info"/>
+        <AddListCard v-else :value="card.info" @action="updateCard"
+                     @closeAddCard="closeAddEditCard"/>
+      </Draggable>
+      <AddListCard v-if="activeId === id" @action="addCard"
+                   @closeAddCard="closeAddEditCard"/>
+    </Container>
+    <div v-if="activeId !== id" class="add-list">
+      <div @click="addNewCard">
         <font-awesome-icon :icon="plus"/> Add another list
       </div>
     </div>
+    <!-- The modal -->
+    <b-modal
+        ref="my-modal"
+        hide-header
+        d="my-modal"
+        @ok="deleteList"
+    ><div class="text-danger">You are about to delete a List.</div>
+    </b-modal>
   </div>
 </template>
 
 <script>
   import { faTimes, faPlus, faEdit } from '@fortawesome/free-solid-svg-icons'
-  import AddListCard from "./AddListCard";
-  import SingleCard from "./SingleCard";
+  import AddListCard from "./AddListCard"
+  import SingleCard from "./SingleCard"
+  import { Container, Draggable } from "vue-smooth-dnd"
+  import { BModal } from 'bootstrap-vue'
 
   export default {
     name: "List",
-    components: {SingleCard, AddListCard },
+    components: {SingleCard, AddListCard, Container, Draggable, BModal },
     props: {
       title: {
         type: String,
+        required: true
+      },
+      cards: {
+        type: Array,
         required: true
       },
       id: {
@@ -49,54 +76,97 @@
       },
       edit () {
         return faEdit
+      },
+      activeId() {
+        return this.$store.state.activeId
       }
     }, data() {
       return {
-        showForm: false,
-        cards: [
-          {
-            "name": "vue.draggable",
-            "order": '1',
-            "fixed": false
-          },
-          {
-            "name": "draggable",
-            "order": '2',
-            "fixed": false
-          },
-          {
-            "name": "for",
-            "order": '4',
-            "fixed": false
-          },
-          {
-            "name": "on",
-            "order": '7',
-            "fixed": false
-          },
-          {
-            "name": "vue.js 2.0",
-            "order": '5',
-            "fixed": false
-          },
-          {
-            "name": "based",
-            "order": '6',
-            "fixed": false
-          },
-          {
-            "name": "component",
-            "order": '3',
-            "fixed": false
-          },
-          {
-            "name": "Sortablejs",
-            "order": '8',
-            "fixed": false
-          }
-        ]
+
       }
     },
+    methods: {
+      showModal() {
+        this.$refs['my-modal'].show()
+      },
+      addNewCard(){
+        this.$store.commit('setActiveId', this.id);
+      },
+      closeAddEditCard(){
+        this.$store.commit('setActiveId', '');
+      },
+      updateCard(data) {
+        if(data.length > 0){
+          let newCards = [];
+          for(let card of this.cards) {
+            if(card.id === this.activeId){
+              card.info = data
+            }
+            newCards.push(card);
+          }
+          this.$store.dispatch('updateCard', {listId: this.id, cards: newCards});
+          this.closeAddEditCard();
+        }
+      },
+      addCard(data) {
+        if(data.length > 0){
+          this.$store.dispatch('addCard', {listId: this.activeId, data});
+          this.closeAddEditCard();
+        }
+      },
+      onCardDrop(columnId, dropResult){
+        const { removedIndex, addedIndex, payload, element } = dropResult;
+
+        let originalArray = JSON.parse(JSON.stringify(this.cards.slice()))
+
+        if (removedIndex !== null && addedIndex !== null){
+          console.log('same column')
+          if(removedIndex !== addedIndex){
+
+            const movedItem = originalArray.find((item, index) => index === removedIndex);
+            const remainingItems = originalArray.filter((item, index) => index !== removedIndex);
+
+            const reorderedItems = [
+              ...remainingItems.slice(0, addedIndex),
+              movedItem,
+              ...remainingItems.slice(addedIndex)
+            ];
+
+            this.$store.dispatch('updateCard', {listId: this.id, cards: reorderedItems})
+          }
+        }
+        if (removedIndex !== null) {
+          originalArray.splice(removedIndex, 1)
+          this.$store.dispatch('updateCard', {
+            listId: this.id,
+            cards: originalArray
+          })
+        }
+
+        if (addedIndex !== null) {
+          originalArray.splice(addedIndex, 0, payload)
+          this.$store.dispatch('updateCard', {
+            listId: this.id,
+            cards: originalArray
+          })
+        }
+      },
+      getCardPayload () {
+        return index => {
+          return JSON.parse(JSON.stringify(this.cards[index]))
+        }
+      },
+      deleteCard (id) {
+        let tempCards = this.cards.filter(card => card.id !== id)
+        this.$store.dispatch('updateCard', {
+          listId: this.id,
+          cards: tempCards
+        })
+      },
+      deleteList () {
+        this.$store.dispatch('deleteList', {listId: this.id, boardId: this.$route.params.id})
+      }
+    }
   }
 </script>
 

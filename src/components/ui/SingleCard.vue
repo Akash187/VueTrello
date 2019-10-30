@@ -6,14 +6,17 @@
       @mouseleave="showEditBtn = false"
   >
     {{ data }}
-    <span class="edit-icon" v-show="showEditBtn">
-      <font-awesome-icon @click="editing = true" :icon="edit" size="xs"/>
+    <span class="edit-icon action-icon" v-show="showEditBtn">
+      <font-awesome-icon @click="openEditCard" :icon="edit" size="xs"/>
+    </span>
+    <span class="delete-icon action-icon" v-show="showEditBtn">
+      <font-awesome-icon @click="$emit('deleteCard')" :icon="del" size="xs"/>
     </span>
   </b-card>
 </template>
 
 <script>
-  import {faPenAlt} from '@fortawesome/free-solid-svg-icons'
+  import {faPenAlt, faTrashAlt } from '@fortawesome/free-solid-svg-icons'
   import { BCard } from 'bootstrap-vue'
 
   export default {
@@ -39,8 +42,16 @@
     computed: {
       edit() {
         return faPenAlt
+      },
+      del() {
+        return faTrashAlt
       }
-    }
+    },
+    methods: {
+      openEditCard() {
+        this.$store.commit('setActiveId', this.id)
+      }
+    },
   }
 </script>
 
@@ -58,11 +69,19 @@
     position: absolute;
     top: 7px;
     padding: 0 4px;
+    right: 26px;
+    border-radius: 2px;
+  }
+
+  .delete-icon {
+    position: absolute;
+    top: 7px;
+    padding: 0 4px;
     right: 6px;
     border-radius: 2px;
   }
 
-  .edit-icon:hover {
+  .action-icon:hover {
     background: rgba(211, 215, 217, 0.7);
     cursor: pointer;
   }

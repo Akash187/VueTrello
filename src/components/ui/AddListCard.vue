@@ -8,7 +8,8 @@
           placeholder="Enter card detail..."
           :autofocus="true"
       />
-      <BoardFormBtn text="Add Card" @add="addCard" @closeform="$emit('closeAddCard')"/>
+      <BoardFormBtn text="Add Card" @submit="submit"
+                    @closeform="$emit('closeAddCard')"/>
     </div>
   </div>
 </template>
@@ -28,7 +29,7 @@
       value: {
         type: String,
         default: ''
-      },
+      }
     },
     computed: {
       plus () {
@@ -41,8 +42,9 @@
       }
     },
     methods: {
-      addList() {
-        this.$store.dispatch('addList', {})
+      submit() {
+        this.$emit('action', this.info);
+        this.info = '';
       }
     }
   }
