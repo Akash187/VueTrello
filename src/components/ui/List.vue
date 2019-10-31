@@ -128,7 +128,7 @@
         }
       },
       onCardDrop(columnId, dropResult){
-        const { removedIndex, addedIndex, payload, element } = dropResult;
+        const { removedIndex, addedIndex, payload } = dropResult;
 
         let originalArray = JSON.parse(JSON.stringify(this.cards.slice()))
 

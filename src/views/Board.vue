@@ -40,7 +40,7 @@
     methods: {
       onDrop (dropResult) {
 
-        const { removedIndex, addedIndex, payload, element } = dropResult;
+        const { removedIndex, addedIndex } = dropResult;
 
         if(removedIndex !== addedIndex){
           let originalArray = this.$store.state.board.lists;

@@ -222,7 +222,7 @@ const store = new Vuex.Store({
             lists: firebase.firestore.FieldValue.arrayUnion(res.id),
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
           })
-        }).then((res) => {
+        }).then(() => {
           resolve('added')
         }).catch(err => {
           reject(err)
