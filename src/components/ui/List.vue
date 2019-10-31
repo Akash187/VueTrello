@@ -19,13 +19,26 @@
           v-for="card in cards"
           :key="card.id"
       >
-        <SingleCard v-if="activeId !== card.id" @deleteCard="deleteCard(card.id)" :id="card.id"
-                    :data="card.info"/>
-        <AddListCard v-else :value="card.info" @action="updateCard"
-                     @closeAddCard="closeAddEditCard"/>
+        <SingleCard
+            v-if="activeId !== card.id"
+            @deleteCard="deleteCard(card.id)"
+            :id="card.id"
+            :data="card.info"
+        />
+        <AddListCard
+            v-else
+            :value="card.info"
+            @action="updateCard"
+            @closeAddCard="closeAddEditCard"
+            btn-text="Update Card"
+        />
       </Draggable>
-      <AddListCard v-if="activeId === id" @action="addCard"
-                   @closeAddCard="closeAddEditCard"/>
+      <AddListCard
+          v-if="activeId === id"
+          @action="addCard"
+          @closeAddCard="closeAddEditCard"
+          btn-text="Add Card"
+      />
     </Container>
     <div v-if="activeId !== id" class="add-list">
       <div @click="addNewCard">
@@ -210,5 +223,9 @@
 
   .cancel-icon{
     cursor: pointer;
+  }
+
+  .ghost-drop{
+    width: 100px;
   }
 </style>

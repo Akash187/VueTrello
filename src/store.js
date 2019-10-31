@@ -277,7 +277,7 @@ const store = new Vuex.Store({
   },
   getters: {
     orderedList: state => {
-      if(state.board.lists){
+      if(state.board.lists && state.lists.length>0){
         return state.board.lists.map(id => {
           for(let list of state.lists){
             if(list && list.id === id){

@@ -8,7 +8,7 @@
           placeholder="Enter card detail..."
           :autofocus="true"
       />
-      <BoardFormBtn text="Add Card" @submit="submit"
+      <BoardFormBtn :text='btnText' @submit="submit"
                     @closeform="$emit('closeAddCard')"/>
     </div>
   </div>
@@ -29,6 +29,10 @@
       value: {
         type: String,
         default: ''
+      },
+      btnText: {
+        type: String,
+        required: true
       }
     },
     computed: {

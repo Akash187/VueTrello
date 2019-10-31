@@ -17,46 +17,26 @@
         no-close-on-backdrop
         title="Using Component Methods"
     >
-      <div class="d-block">
-        <label for="input-formatter">Board Name</label>
-        <b-form-input
-            id="input-formatter"
-            v-model="name"
-            placeholder="Enter name"
-        ></b-form-input>
-      </div>
-      <div class="mt-3 d-flex justify-content-end">
-        <b-button variant="secondary" @click="hideModal">Cancel</b-button>
-        <b-button
-            class="ml-2"
-            variant="primary"
-            @click="createBoard"
-            :disabled="name.length === 0"
-        >OK</b-button>
-      </div>
+      <BoardModelContent name="name" @hideModal="hideModal" @createBoard="createBoard"/>
     </b-modal>
   </div>
 </template>
 
 <script>
   import { faUser } from '@fortawesome/free-solid-svg-icons'
-  import { BModal, BButton, BFormInput } from 'bootstrap-vue'
+  import { BModal } from 'bootstrap-vue'
+  import BoardModelContent from "../components/ui/BoardModelContent";
 
   export default {
     name: 'Home',
-    components: { BModal, BButton, BFormInput },
-    data() {
-      return {
-        name: ''
-      }
-    },
+    components: { BModal, BoardModelContent },
     created() {
       this.$store.dispatch('checkIsAuthenticated')
         .then(() => this.$store.dispatch('fetchBoards'))
         .catch(err => console.log(err))
     },
     beforeDestroy() {
-      this.$store.state.boardListener()
+      this.$store.state.boardsListener()
     },
     computed: {
       user() {
@@ -72,11 +52,10 @@
       },
       hideModal() {
         this.$refs['my-modal'].hide()
-        this.name = ''
       },
-      createBoard() {
-        if(this.name.length > 0){
-          this.$store.dispatch('createBoard', this.name)
+      createBoard(name) {
+        if(name.length > 0){
+          this.$store.dispatch('createBoard', name)
             .then()
             .catch(err => console.log(err))
         }
