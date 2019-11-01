@@ -185,6 +185,7 @@
 <style scoped>
   .list{
     min-width: var(--board-list-width);
+    max-width: var(--board-list-width);
     background: var(--board-list-bg-color);
     margin-right: 1rem;
     border-radius: var(--board-list-border-radius);
