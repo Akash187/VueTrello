@@ -7,6 +7,7 @@
           max-rows="8"
           placeholder="Enter card detail..."
           :autofocus="true"
+          style="overflow-y: auto"
       />
       <BoardFormBtn :text='btnText' @submit="submit"
                     @closeform="$emit('closeAddCard')"/>

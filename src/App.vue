@@ -44,4 +44,9 @@
     min-height: 10px !important;
     min-width: 0 !important;
   }
+
+  .smooth-dnd-container.horizontal{
+    display: flex !important;
+    overflow-x: auto !important;
+  }
 </style>

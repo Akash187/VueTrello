@@ -218,7 +218,7 @@
   }
 
   .cards{
-    overflow: scroll;
+    overflow-y: auto;
   }
 
   .cancel-icon{
