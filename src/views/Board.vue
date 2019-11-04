@@ -1,5 +1,6 @@
 <template>
   <div>
+    <div class="board-title pl-3 h3 text-dark mb-0">{{$store.state.board.name}}</div>
     <Container @drop="onDrop" orientation="horizontal" class="boards">
       <Draggable v-for="list in orderedList" :key="list.id">
         <List :id="list.id" :title="list.title" :cards="list.cards"/>
@@ -67,7 +68,7 @@
     flex-wrap: nowrap;
     overflow: auto;
     align-items: flex-start;
-    padding: 1rem 0.5rem;
-    height: calc(100vh - 4rem);
+    padding: 0.5rem 0.5rem 1rem 0.5rem;
+    height: calc(100vh - 4rem - 33px);
   }
 </style>
