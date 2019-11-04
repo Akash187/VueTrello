@@ -14,7 +14,7 @@ A simple trello clone using Vue.js as Frontend Framework and Firebase as a backe
 
 ## How to Load the App
 
-You can run a hosted version of the app at [https://vuemovies.netlify.com/](https://vuetrello.netlify.com/)
+You can run a hosted version of the app at [https://vuetrello.netlify.com/](https://vuetrello.netlify.com/)
 
 The project uses Node.js and the vue cli 3. If you do not have Node >= 6.x installed, you can download it here: [Node.js](https://nodejs.org/en/)
 
