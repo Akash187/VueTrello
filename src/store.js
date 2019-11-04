@@ -167,7 +167,7 @@ const store = new Vuex.Store({
       try{
         let user = await firestore.collection('users').doc(uid).get();
         let data = user.data();
-        commit('setInitials', data.initials);
+        commit('setInitials', data.initials.substring(0,2));
       }catch(err){
         console.log(err)
       }
