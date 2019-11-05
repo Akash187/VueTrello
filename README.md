@@ -33,8 +33,6 @@ REACT_APP_FIREBASE_DATABASE_URL=https://client-panel-12e45.firebaseio.com
 REACT_APP_FIREBASE_PROJECT_ID=client-panel-12e45
 REACT_APP_FIREBASE_STORAGE_BUCKET=client-panel-12e45.appspot.com
 REACT_APP_FIREBASE_MESSAGING_SENDER_ID=2412e4546937
-REACT_APP_HERE_MAPS_APP_ID=41vHI9jzlfgthkukEzgw
-REACT_APP_HERE_MAPS_APP_CODE=JX43Cz50werRHkBrxyD7yw
 ```
 
 After setting up .env file you can run project by below command
