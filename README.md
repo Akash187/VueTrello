@@ -25,7 +25,7 @@ git clone https://github.com/Akash187/VueTrello.git
 yarn install
 ```
 
-Create a Firebase App and put the keys and secret in a .env file in the root of project. See the example below. Also get here maps app-id and app-code.
+Create a Firebase App and put the keys and secret in a .env file in the root of project. See the example below.
 ```
 REACT_APP_FIREBASE_API_KEY=AIzaSyBjuzodfdsjkKDFfkdk2oJYUX9dEaU
 REACT_APP_FIREBASE_AUTH_DOMAIN=client-panel-12e45.firebaseapp.com
